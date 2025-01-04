@@ -78,10 +78,10 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
             print(term.clear)
 
 
-        print(term.move_xy(0, 0) + term.on_firebrick3('OVERDUE TASKS'.ljust(half_width - 1)), end='')
-        print(term.move_xy(0, half_height + 1) + term.on_royalblue('DUE TODAY'.ljust(half_width - 1)), end='')
-        print(term.move_xy(half_width + 1, 0) + term.on_webpurple(args.detail_list.upper().ljust(half_width - 1)), end='')
-        print(term.move_xy(half_width + 1, half_height + 1) + term.on_olive('CALENDER'.ljust(half_width - 1)), end='')
+        print(term.move_xy(0, 0) + term.bold(term.on_firebrick3('OVERDUE TASKS'.ljust(half_width - 1))), end='')
+        print(term.move_xy(0, half_height + 1) + term.bold(term.on_royalblue('DUE TODAY'.ljust(half_width - 1))), end='')
+        print(term.move_xy(half_width + 1, 0) + term.bold(term.on_webpurple(args.detail_list.upper().ljust(half_width - 1))), end='')
+        print(term.move_xy(half_width + 1, half_height + 1) + term.bold(term.on_olive('CALENDER'.ljust(half_width - 1))), end='')
         
         all_tasks = rtm_instance.get_tasks(None)
 
