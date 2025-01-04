@@ -3,9 +3,11 @@ from hashlib import md5
 import copy
 import requests
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 from threading import Thread
+import pytz
+from tzlocal import get_localzone
 
 RTM_URL = 'https://api.rememberthemilk.com/services/rest/?'
 RATE_LIMIT = 1
@@ -14,6 +16,9 @@ ALL_TASKS = '_all'
 OVERDUE = -1
 TODAY = 0
 FUTURE = 1
+
+def midnight(date_object):
+    return date_object.replace(hour=0, minute=0, second=0, microsecond=0)
 
 class rtm(Thread):
     def __init__(self, config, required_lists):
@@ -85,15 +90,14 @@ class rtm(Thread):
             list_id = self._get_list_id(list_name)
 
         params = dict()
-        params['filter'] = 'status:incomplete'
+        params['filter'] = 'status:incomplete AND dueBefore:"1 month of today"'
 
         if list_id is not None:
             params['list_id'] = list_id
 
         raw_tasks = self._request('rtm.tasks.getList', params)
 
-
-        today = datetime.today().strftime('%Y-%m-%d')
+        today = midnight(datetime.now(get_localzone()))
         store_tasks = list()
 
         task_series = raw_tasks['rsp']['tasks']['list']
@@ -103,7 +107,9 @@ class rtm(Thread):
                 task_name = task['name']
 
                 for task_entry in task['task']:
-                    entry_date = task_entry['due'][:10]
+                    # For some reason all due dates are 1 day behind
+                    entry_date = datetime.fromisoformat(task_entry['due'])
+                    local_date = midnight(entry_date.astimezone(get_localzone()))
 
                     if entry_date < today:
                         status = OVERDUE
@@ -114,7 +120,7 @@ class rtm(Thread):
 
                     task_item = dict()
                     task_item['name'] = task_name
-                    task_item['due'] = entry_date
+                    task_item['due'] = local_date.strftime("%Y-%m-%d")
                     task_item['status'] = status
 
                     store_tasks.append(task_item)
