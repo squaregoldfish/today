@@ -97,7 +97,7 @@ class rtm(Thread):
 
         raw_tasks = self._request('rtm.tasks.getList', params)
 
-        today = midnight(datetime.now(get_localzone()))
+        today = midnight(datetime.now(get_localzone())).date()
         store_tasks = list()
 
         task_series = raw_tasks['rsp']['tasks']['list']
@@ -109,11 +109,11 @@ class rtm(Thread):
                 for task_entry in task['task']:
                     # For some reason all due dates are 1 day behind
                     entry_date = datetime.fromisoformat(task_entry['due'])
-                    local_date = midnight(entry_date.astimezone(get_localzone()))
+                    local_date = midnight(entry_date.astimezone(get_localzone())).date()
 
-                    if entry_date < today:
+                    if local_date < today:
                         status = OVERDUE
-                    elif entry_date == today:
+                    elif local_date == today:
                         status = TODAY
                     else:
                         status = FUTURE
