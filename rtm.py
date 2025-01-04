@@ -5,6 +5,7 @@ import requests
 import json
 from datetime import datetime
 import time
+from threading import Thread
 
 RTM_URL = 'https://api.rememberthemilk.com/services/rest/?'
 RATE_LIMIT = 1
@@ -14,14 +15,30 @@ OVERDUE = -1
 TODAY = 0
 FUTURE = 1
 
-class rtm:
-    def __init__(self, config):
+class rtm(Thread):
+    def __init__(self, config, required_lists):
         self.key = config['api_key']
         self.secret = config['shared_secret']
         self.token = config['token']
         self.tasks = dict()
         self.last_request = None
-        self.lists = None
+        self.lists = dict()
+        self.required_lists = required_lists
+
+        # Kick off the background retrieval thread
+        Thread.__init__(self)
+        self.start()
+
+    def run(self):
+        # Get the lists
+        self._get_lists()
+
+        while True:
+            self._fetch_tasks(None)
+            for rlist in self.required_lists:
+                self._fetch_tasks(rlist)
+
+            time.sleep(60)
 
     def _request(self, method, params):
 
@@ -56,12 +73,12 @@ class rtm:
             self.lists[list_entry['name']] = list_entry['id']
 
     def _get_list_id(self, list_name):
-        if self.lists is None:
-            self._get_lists()
+        if list_name == ALL_TASKS:
+            return None
+        else: 
+            return None if list_name not in self.lists.keys() else self.lists[list_name]
 
-        return ALL_TASKS if list_name is None else self.lists[list_name]
-
-    def fetch_tasks(self, list_name):
+    def _fetch_tasks(self, list_name):
         if list_name is None:
             list_id = None
         else:
@@ -108,19 +125,22 @@ class rtm:
             self.tasks[list_id] = store_tasks
 
     def get_tasks(self, list_name):
-        return self.tasks[self._get_list_id(list_name)]
+        list_id = ALL_TASKS if list_name is None else self._get_list_id(list_name)
+        return list() if not list_id in self.tasks.keys() else self.tasks[list_id]
 
 
 if __name__ == "__main__":
     with open('config.toml') as config_file:
         config = toml.load(config_file)
 
-    instance = rtm(config['rtm'])
-    
-    print('***ALL***')
-    instance.fetch_tasks(None)
-    print(instance.get_tasks(None))
+    instance = rtm(config['rtm'], ['Work'])
 
-    print('***WORK***')
-    instance.fetch_tasks('Work')
-    print(instance.get_tasks('Work'))
+    while True:
+        print('***ALL***')
+        print(instance.get_tasks(None))
+
+        time.sleep(2)
+        print('***WORK***')
+        print(instance.get_tasks('Work'))
+
+        time.sleep(5)
