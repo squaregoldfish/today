@@ -90,51 +90,54 @@ class rtm(Thread):
             return None if list_name not in self.lists.keys() else self.lists[list_name]
 
     def _fetch_tasks(self, list_name):
-        if list_name is None:
-            list_id = None
-        else:
-            list_id = self._get_list_id(list_name)
+        try:
+            if list_name is None:
+                list_id = None
+            else:
+                list_id = self._get_list_id(list_name)
 
-        params = dict()
-        params['filter'] = 'status:incomplete AND dueBefore:"1 month of today"'
+            params = dict()
+            params['filter'] = 'status:incomplete AND dueBefore:"1 month of today"'
 
-        if list_id is not None:
-            params['list_id'] = list_id
+            if list_id is not None:
+                params['list_id'] = list_id
 
-        raw_tasks = self._request('rtm.tasks.getList', params)
+            raw_tasks = self._request('rtm.tasks.getList', params)
 
-        today = midnight(datetime.now(get_localzone())).date()
-        store_tasks = list()
+            today = midnight(datetime.now(get_localzone())).date()
+            store_tasks = list()
 
-        task_series = raw_tasks['rsp']['tasks']['list']
+            task_series = raw_tasks['rsp']['tasks']['list']
 
-        for series in task_series:
-            for task in series['taskseries']:
-                task_name = task['name']
+            for series in task_series:
+                for task in series['taskseries']:
+                    task_name = task['name']
 
-                for task_entry in task['task']:
-                    # For some reason all due dates are 1 day behind
-                    entry_date = datetime.fromisoformat(task_entry['due'])
-                    local_date = midnight(entry_date.astimezone(get_localzone())).date()
+                    for task_entry in task['task']:
+                        # For some reason all due dates are 1 day behind
+                        entry_date = datetime.fromisoformat(task_entry['due'])
+                        local_date = midnight(entry_date.astimezone(get_localzone())).date()
 
-                    if local_date < today:
-                        status = OVERDUE
-                    elif local_date == today:
-                        status = TODAY
-                    else:
-                        status = FUTURE
+                        if local_date < today:
+                            status = OVERDUE
+                        elif local_date == today:
+                            status = TODAY
+                        else:
+                            status = FUTURE
 
-                    task_item = dict()
-                    task_item['name'] = task_name
-                    task_item['due'] = local_date.strftime("%Y-%m-%d")
-                    task_item['status'] = status
+                        task_item = dict()
+                        task_item['name'] = task_name
+                        task_item['due'] = local_date.strftime("%Y-%m-%d")
+                        task_item['status'] = status
 
-                    store_tasks.append(task_item)
+                        store_tasks.append(task_item)
 
-        if list_id is None:
-            self.tasks[ALL_TASKS] = store_tasks
-        else:
-            self.tasks[list_id] = store_tasks
+            if list_id is None:
+                self.tasks[ALL_TASKS] = store_tasks
+            else:
+                self.tasks[list_id] = store_tasks
+        except Exception:
+            pass
 
     def get_tasks(self, list_name):
         list_id = ALL_TASKS if list_name is None else self._get_list_id(list_name)
