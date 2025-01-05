@@ -54,15 +54,10 @@ def display_tasks(tasks, x_pos, y_start, y_limit, max_length, include_date):
             pos += 1
 
 
-parser = argparse.ArgumentParser(
-                    prog='today')
-parser.add_argument('detail_list', help="The specific list to show")
-args = parser.parse_args()
-
 with open('config.toml') as config_file:
     config = toml.load(config_file)
 
-rtm_instance = rtm.rtm(config['rtm'], [args.detail_list])
+rtm_instance = rtm.rtm(config['rtm'])
 
 term = Terminal()
 
@@ -85,14 +80,14 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
 
         print(term.move_xy(0, 0) + term.bold(term.on_firebrick3(center('OVERDUE TASKS', half_width - 1))), end='')
         print(term.move_xy(0, half_height + 1) + term.bold(term.on_royalblue(center('DUE TODAY', half_width - 1))), end='')
-        print(term.move_xy(half_width + 1, 0) + term.bold(term.on_webpurple(center(args.detail_list.upper(), half_width - 1))), end='')
+        print(term.move_xy(half_width + 1, 0) + term.bold(term.on_webpurple(center('/'.join(rtm_instance.get_required_lists()).upper(), half_width - 1))), end='')
         print(term.move_xy(half_width + 1, half_height + 1) + term.bold(term.on_olive(center('CALENDER', half_width - 1))), end='')
         
         all_tasks = rtm_instance.get_tasks(None)
 
         overdue_tasks = sorted(
             list([d for d in all_tasks if d['status'] == rtm.OVERDUE]),
-            key=itemgetter('due')
+            key=itemgetter('due', 'name')
             )
 
         display_tasks(overdue_tasks, 0, 1, half_height - 1, half_width - 1, True)
@@ -104,12 +99,13 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
 
         display_tasks(today_tasks, 0, half_height + 2, term.height, half_width - 1, False)
 
+        list_tasks = []
 
-        detail_tasks = rtm_instance.get_tasks(args.detail_list)
-        detail_tasks = sorted(detail_tasks, key=itemgetter('due', 'name'))
-        display_tasks(detail_tasks, half_width + 1, 1, half_height - 1, half_width - 1, True)
+        for list_name in rtm_instance.get_required_lists():
+            list_tasks += rtm_instance.get_tasks(list_name)
 
-
+        list_tasks = sorted(list_tasks, key=itemgetter('due', 'name'))
+        display_tasks(list_tasks, half_width + 1, 1, half_height - 1, half_width - 1, True)
         
         print(term.move_xy(term.width, term.height), end='')
         key = term.inkey(timeout=1)

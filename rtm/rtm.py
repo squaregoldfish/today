@@ -21,14 +21,14 @@ def midnight(date_object):
     return date_object.replace(hour=0, minute=0, second=0, microsecond=0)
 
 class rtm(Thread):
-    def __init__(self, config, required_lists):
+    def __init__(self, config):
         self.key = config['api_key']
         self.secret = config['shared_secret']
         self.token = config['token']
         self.tasks = dict()
         self.last_request = None
         self.lists = dict()
-        self.required_lists = required_lists
+        self.required_lists = config['required_lists']
         self.stop_flag = False
 
         # Kick off the background retrieval thread
@@ -139,6 +139,9 @@ class rtm(Thread):
     def get_tasks(self, list_name):
         list_id = ALL_TASKS if list_name is None else self._get_list_id(list_name)
         return list() if not list_id in self.tasks.keys() else self.tasks[list_id]
+
+    def get_required_lists(self):
+        return self.required_lists
 
     def stop(self):
         self.stop_flag = True

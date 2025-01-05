@@ -2,3 +2,4 @@
 api_key=''
 shared_secret=''
 token=''
+required_lists = ['Work']
