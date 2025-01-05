@@ -23,7 +23,7 @@ def display_tasks(tasks, x_pos, y_start, y_limit, max_length, include_date):
                 entry = entry[:name_max_length].ljust(name_max_length)
 
                 formatted_date = task_date.strftime("%b %d").replace(" 0", "  ")
-                entry += formatted_date
+                entry += f' {formatted_date}'
 
                 if task_date.year > datetime.now().year:
                     entry_color = 'red'
@@ -90,14 +90,14 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
             key=itemgetter('due')
             )
 
-        display_tasks(overdue_tasks, 0, 1, half_height - 1, half_width - 2, True)
+        display_tasks(overdue_tasks, 0, 1, half_height - 1, half_width - 1, True)
 
         today_tasks = sorted(
             list([d for d in all_tasks if d['status'] == rtm.TODAY]),
             key=itemgetter('name')
             )
 
-        display_tasks(today_tasks, 0, half_height + 2, term.height, half_width - 2, False)
+        display_tasks(today_tasks, 0, half_height + 2, term.height, half_width - 1, False)
 
 
         detail_tasks = rtm_instance.get_tasks(args.detail_list)
