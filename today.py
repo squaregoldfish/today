@@ -6,7 +6,7 @@ import time
 from operator import itemgetter
 from datetime import datetime
 import json
-
+from tzlocal import get_localzone
 
 def center(text, width):
     if len(text) > width:
@@ -70,6 +70,10 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
     half_width = int(term.width / 2)
     half_height = int(term.height / 2)
 
+    overdue_count = 0
+    overdue_oldest = 0
+    today_count = 0
+
     while True:
         if term.width != old_term_width or term.height != old_term_height:
             old_term_width = term.width
@@ -78,8 +82,8 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
             half_height = int(term.height / 2)
             print(term.clear)
 
-        print(term.move_xy(0, 0) + term.bold(term.on_firebrick3(center('OVERDUE TASKS', half_width - 1))), end='')
-        print(term.move_xy(0, half_height + 1) + term.bold(term.on_royalblue(center('DUE TODAY', half_width - 1))), end='')
+        print(term.move_xy(0, 0) + term.bold(term.on_firebrick3(center(f'OVERDUE TASKS ({overdue_count}, {overdue_oldest}d)', half_width - 1))), end='')
+        print(term.move_xy(0, half_height + 1) + term.bold(term.on_royalblue(center(f'DUE TODAY ({today_count})', half_width - 1))), end='')
         print(term.move_xy(half_width + 1, 0) + term.bold(term.on_webpurple(center('/'.join(rtm_instance.get_required_lists()).upper(), half_width - 1))), end='')
         print(term.move_xy(half_width + 1, half_height + 1) + term.bold(term.on_olive(center('CALENDER', half_width - 1))), end='')
         
@@ -90,12 +94,23 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
             key=itemgetter('due', 'name')
             )
 
+        overdue_count = len(overdue_tasks)
+
+        if (len(overdue_tasks) > 0):
+            oldest_date = datetime.strptime(overdue_tasks[0]['due'], "%Y-%m-%d")
+            oldest_date = rtm.midnight(oldest_date.astimezone(get_localzone())).date()
+            today = rtm.midnight(datetime.now(get_localzone())).date()
+            overdue_oldest = (today - oldest_date).days
+
         display_tasks(overdue_tasks, 0, 1, half_height - 1, half_width - 1, True)
+
 
         today_tasks = sorted(
             list([d for d in all_tasks if d['status'] == rtm.TODAY]),
             key=itemgetter('name')
             )
+
+        today_count = len(today_tasks)
 
         display_tasks(today_tasks, 0, half_height + 2, term.height, half_width - 1, False)
 
