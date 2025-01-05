@@ -107,8 +107,8 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
 
         
         print(term.move_xy(term.width, term.height), end='')
-        time.sleep(1)
+        key = term.inkey(timeout=1)
+        if key == 'q':
+            break
 
-print(half_width)
-#while True:
-#    time.sleep(5)
+rtm_instance.stop()

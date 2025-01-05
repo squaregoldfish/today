@@ -29,6 +29,7 @@ class rtm(Thread):
         self.last_request = None
         self.lists = dict()
         self.required_lists = required_lists
+        self.stop_flag = False
 
         # Kick off the background retrieval thread
         Thread.__init__(self)
@@ -38,12 +39,17 @@ class rtm(Thread):
         # Get the lists
         self._get_lists()
 
-        while True:
+        while not self.stop_flag:
             self._fetch_tasks(None)
             for rlist in self.required_lists:
+                if self.stop_flag:
+                    break
                 self._fetch_tasks(rlist)
 
-            time.sleep(60)
+            sleep_time = 0
+            while not self.stop_flag and sleep_time < 60:
+                time.sleep(1)
+                sleep_time += 1
 
     def _request(self, method, params):
 
@@ -133,6 +139,9 @@ class rtm(Thread):
     def get_tasks(self, list_name):
         list_id = ALL_TASKS if list_name is None else self._get_list_id(list_name)
         return list() if not list_id in self.tasks.keys() else self.tasks[list_id]
+
+    def stop(self):
+        self.stop_flag = True
 
 
 if __name__ == "__main__":
