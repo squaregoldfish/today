@@ -8,6 +8,12 @@ from datetime import datetime
 import json
 
 
+def center(text, width):
+    if len(text) > width:
+        return text[:width]
+    else:
+        return text.center(width, ' ')
+
 def display_tasks(tasks, x_pos, y_start, y_limit, max_length, include_date):
     pos = y_start
     if len(tasks) == 0:
@@ -77,11 +83,10 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
             half_height = int(term.height / 2)
             print(term.clear)
 
-
-        print(term.move_xy(0, 0) + term.bold(term.on_firebrick3('OVERDUE TASKS'.ljust(half_width - 1))), end='')
-        print(term.move_xy(0, half_height + 1) + term.bold(term.on_royalblue('DUE TODAY'.ljust(half_width - 1))), end='')
-        print(term.move_xy(half_width + 1, 0) + term.bold(term.on_webpurple(args.detail_list.upper().ljust(half_width - 1))), end='')
-        print(term.move_xy(half_width + 1, half_height + 1) + term.bold(term.on_olive('CALENDER'.ljust(half_width - 1))), end='')
+        print(term.move_xy(0, 0) + term.bold(term.on_firebrick3(center('OVERDUE TASKS', half_width - 1))), end='')
+        print(term.move_xy(0, half_height + 1) + term.bold(term.on_royalblue(center('DUE TODAY', half_width - 1))), end='')
+        print(term.move_xy(half_width + 1, 0) + term.bold(term.on_webpurple(center(args.detail_list.upper(), half_width - 1))), end='')
+        print(term.move_xy(half_width + 1, half_height + 1) + term.bold(term.on_olive(center('CALENDER', half_width - 1))), end='')
         
         all_tasks = rtm_instance.get_tasks(None)
 
