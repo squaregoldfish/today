@@ -19,8 +19,11 @@ def _get_calendar_file(source):
         return icalendar.Calendar.from_ical(f.read())
 
 def _get_calendar_http(source):
-    req = requests.get(source)
-    return icalendar.Calendar.from_ical(req.text)
+    try:
+        req = requests.get(source)
+        return icalendar.Calendar.from_ical(req.text)
+    except Exception:
+        return None
 
 
 def midnight(date_object):
@@ -53,20 +56,20 @@ class cal(Thread):
                 color = self.calendars[name]['color']
 
                 cal = _get_calendar(source)
-                
-                events = recurring_ical_events.of(cal).between(now, one_month)
-                for ev in events:
-                    event = {
-                        'name': ev.get('summary'),
-                        'start': ev.get('dtstart').dt,
-                        'end': ev.get('dtend').dt,
-                        'color': color
-                    }
+                if cal is not None:
+                    events = recurring_ical_events.of(cal).between(now, one_month)
+                    for ev in events:
+                        event = {
+                            'name': ev.get('summary'),
+                            'start': ev.get('dtstart').dt,
+                            'end': ev.get('dtend').dt,
+                            'color': color
+                        }
 
-                    if isinstance(event['start'], datetime.datetime):
-                        time_events.append(event)
-                    else:
-                        day_events.append(event)
+                        if isinstance(event['start'], datetime.datetime):
+                            time_events.append(event)
+                        else:
+                            day_events.append(event)
 
             self.day_events = sorted(day_events, key=lambda x: x['start'])
             self.time_events = sorted(time_events, key=lambda x: x['start'])
