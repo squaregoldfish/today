@@ -9,6 +9,7 @@ toml = "*"
 blessed = "*"
 tzlocal = "*"
 pytz = "*"
+recurring-ical-events = "*"
 
 [dev-packages]
 

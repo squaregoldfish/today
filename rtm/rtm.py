@@ -151,10 +151,10 @@ class rtm(Thread):
 
 
 if __name__ == "__main__":
-    with open('config.toml') as config_file:
+    with open('../config.toml') as config_file:
         config = toml.load(config_file)
 
-    instance = rtm(config['rtm'], ['Work'])
+    instance = rtm(config['rtm'])
 
     while True:
         print('***ALL***')

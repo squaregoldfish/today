@@ -1,6 +1,7 @@
 import argparse
 from blessed import Terminal
 from rtm import rtm
+from cal import cal
 import toml
 import time
 from operator import itemgetter
@@ -53,11 +54,36 @@ def display_tasks(tasks, x_pos, y_start, y_limit, max_length, include_date):
             print(term.move_xy(x_pos, pos) + ' ' * max_length, end='')
             pos += 1
 
+def display_calendar(events, x_pos, y_start, y_limit, max_length):
+    pos = y_start
+
+    if len(events) == 0:
+        print(term.move_xy(x_pos, pos) + 'No events')
+    else:
+        for event in events:
+            if event['end'] is None:
+                time_string = event['start']
+            else:
+                time_string = f'{event["start"]} - {event["end"]}'
+
+            color = getattr(term, event['color'])
+
+            print(term.move_xy(x_pos, pos) + color(time_string[:max_length].ljust(max_length)))
+
+            name_string = f'  {event["name"]}'
+
+            print(term.move_xy(x_pos, pos + 1) + color(name_string[:max_length].ljust(max_length)))
+
+            pos += 2
+
+            if pos + 4 > y_limit:
+                break
 
 with open('config.toml') as config_file:
     config = toml.load(config_file)
 
 rtm_instance = rtm.rtm(config['rtm'])
+cal_instance = cal.cal(config['calendar'])
 
 term = Terminal()
 
@@ -122,9 +148,12 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         list_tasks = sorted(list_tasks, key=itemgetter('due', 'name'))
         display_tasks(list_tasks, half_width + 1, 1, half_height - 1, half_width - 1, True)
         
+        display_calendar(cal_instance.get_event_text(), half_width + 1, half_height + 2, term.height, half_width - 1)
+
         print(term.move_xy(term.width, term.height), end='')
         key = term.inkey(timeout=1)
         if key == 'q':
             break
 
 rtm_instance.stop()
+cal_instance.stop()
