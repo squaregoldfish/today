@@ -75,7 +75,7 @@ class cal(Thread):
             self.time_events = sorted(time_events, key=lambda x: x['start'])
 
             sleep_time = 0
-            while not self.stop_flag and sleep_time < 300:
+            while not self.stop_flag and sleep_time < 600:
                 time.sleep(1)
                 sleep_time += 1
 
