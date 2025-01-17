@@ -114,8 +114,8 @@ class cal(Thread):
                 evt = self.time_events[time_event_index]
 
                 ev_text = {
-                    'start': datetime.datetime.strftime(evt['start'], '%a %-d %b %-H:%M'),
-                    'end': datetime.datetime.strftime(evt['end'], '%-H:%M'),
+                    'start': datetime.datetime.strftime(evt['start'].astimezone(get_localzone()), '%a %-d %b %-H:%M'),
+                    'end': datetime.datetime.strftime(evt['end'].astimezone(get_localzone()), '%-H:%M'),
                     'name': evt['name'],
                     'color': evt['color']
                 }
