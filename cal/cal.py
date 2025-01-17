@@ -103,8 +103,7 @@ class cal(Thread):
                 if true_end == evt['start']:
                     ev_text['end'] = None
                 else:
-                    ev_text['end'] = datetime.datetime.strftime(true_end, '%a %-d %b'),
-
+                    ev_text['end'] = datetime.datetime.strftime(true_end, '%a %-d %b')
 
                 event_text.append(ev_text)
 
