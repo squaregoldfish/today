@@ -38,11 +38,11 @@ def display_tasks(tasks, x_pos, y_start, y_limit, max_length, include_date):
                 entry = entry[:max_length].ljust(max_length)                
 
 
-            entry_color = 'royalblue'
+            entry_color = 'deepskyblue3'
             if task['status'] == rtm.OVERDUE:
-                entry_color = 'firebrick3'
+                entry_color = 'firebrick1'
             elif task['status'] == rtm.FUTURE:
-                entry_color = 'forestgreen'
+                entry_color = 'limegreen'
 
             color = getattr(term, entry_color)
             print(term.move_xy(x_pos, pos) + color(entry), end='')
@@ -109,7 +109,7 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
             print(term.clear)
 
         print(term.move_xy(0, 0) + term.bold(term.on_firebrick3(center(f'OVERDUE TASKS ({overdue_count}, {overdue_oldest}d)', half_width - 1))), end='')
-        print(term.move_xy(0, half_height + 1) + term.bold(term.on_royalblue(center(f'DUE TODAY ({today_count})', half_width - 1))), end='')
+        print(term.move_xy(0, half_height + 1) + term.bold(term.on_deepskyblue3(center(f'DUE TODAY ({today_count})', half_width - 1))), end='')
         print(term.move_xy(half_width + 1, 0) + term.bold(term.on_webpurple(center('/'.join(rtm_instance.get_required_lists()).upper(), half_width - 1))), end='')
         print(term.move_xy(half_width + 1, half_height + 1) + term.bold(term.on_olive(center('CALENDER', half_width - 1))), end='')
         
