@@ -68,11 +68,27 @@ def display_calendar(events, x_pos, y_start, y_limit, max_length):
 
             color = getattr(term, event['color'])
 
-            print(term.move_xy(x_pos, pos) + color(time_string[:max_length].ljust(max_length)))
-
             name_string = f'  {event["name"]}'
 
-            print(term.move_xy(x_pos, pos + 1) + color(name_string[:max_length].ljust(max_length)))
+            if event['time_to_start'] is None:
+                print(term.move_xy(x_pos, pos) + color(time_string[:max_length].ljust(max_length)))
+                print(term.move_xy(x_pos, pos + 1) + color(name_string[:max_length].ljust(max_length)))
+            else:
+                seconds_to_start = event['time_to_start'].total_seconds()
+
+                if seconds_to_start <= 0:
+                    print(term.move_xy(x_pos, pos) + term.bold(term.on_firebrick3(time_string[:max_length].ljust(max_length))))
+                    print(term.move_xy(x_pos, pos + 1) + term.bold(term.on_firebrick3(name_string[:max_length].ljust(max_length))))
+                elif seconds_to_start <= 300:
+                    print(term.move_xy(x_pos, pos) + term.bold(term.on_darkorange3(time_string[:max_length].ljust(max_length))))
+                    print(term.move_xy(x_pos, pos + 1) + term.bold(term.on_darkorange3(name_string[:max_length].ljust(max_length))))
+                elif seconds_to_start <= 900:
+                    print(term.move_xy(x_pos, pos) + term.bold(term.on_gold4(time_string[:max_length].ljust(max_length))))
+                    print(term.move_xy(x_pos, pos + 1) + term.bold(term.on_gold4(name_string[:max_length].ljust(max_length))))
+                else:
+                    print(term.move_xy(x_pos, pos) + color(time_string[:max_length].ljust(max_length)))
+                    print(term.move_xy(x_pos, pos + 1) + color(name_string[:max_length].ljust(max_length)))
+
 
             pos += 2
 
@@ -111,7 +127,7 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         print(term.move_xy(0, 0) + term.bold(term.on_firebrick3(center(f'OVERDUE TASKS ({overdue_count}, {overdue_oldest}d)', half_width - 1))), end='')
         print(term.move_xy(0, half_height + 1) + term.bold(term.on_deepskyblue3(center(f'DUE TODAY ({today_count})', half_width - 1))), end='')
         print(term.move_xy(half_width + 1, 0) + term.bold(term.on_webpurple(center('/'.join(rtm_instance.get_required_lists()).upper(), half_width - 1))), end='')
-        print(term.move_xy(half_width + 1, half_height + 1) + term.bold(term.on_olive(center('CALENDER', half_width - 1))), end='')
+        print(term.move_xy(half_width + 1, half_height + 1) + term.bold(term.on_darkgreen(center('CALENDER', half_width - 1))), end='')
         
         all_tasks = rtm_instance.get_tasks(None)
 

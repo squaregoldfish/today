@@ -96,7 +96,8 @@ class cal(Thread):
                 ev_text = {
                     'start': datetime.datetime.strftime(evt['start'], '%a %-d %b'),
                     'name': evt['name'],
-                    'color': evt['color']
+                    'color': evt['color'],
+                    'time_to_start': None
                 }
 
                 true_end = evt['end'] - relativedelta.relativedelta(days = 1)
@@ -116,7 +117,8 @@ class cal(Thread):
                     'start': datetime.datetime.strftime(evt['start'].astimezone(get_localzone()), '%a %-d %b %-H:%M'),
                     'end': datetime.datetime.strftime(evt['end'].astimezone(get_localzone()), '%-H:%M'),
                     'name': evt['name'],
-                    'color': evt['color']
+                    'color': evt['color'],
+                    'time_to_start': evt['start'].astimezone(get_localzone()) - datetime.datetime.now(get_localzone())
                 }
 
                 event_text.append(ev_text)
