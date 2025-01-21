@@ -125,7 +125,7 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
             print(term.clear)
 
         print(term.move_xy(0, 0) + term.bold(term.on_firebrick3(center(f'OVERDUE TASKS ({overdue_count}, {overdue_oldest}d)', half_width - 1))), end='')
-        print(term.move_xy(0, half_height + 1) + term.bold(term.on_deepskyblue3(center(f'DUE TODAY ({today_count})', half_width - 1))), end='')
+        print(term.move_xy(0, half_height + 1) + term.bold(term.on_deepskyblue4(center(f'DUE TODAY ({today_count})', half_width - 1))), end='')
         print(term.move_xy(half_width + 1, 0) + term.bold(term.on_webpurple(center('/'.join(rtm_instance.get_required_lists()).upper(), half_width - 1))), end='')
         print(term.move_xy(half_width + 1, half_height + 1) + term.bold(term.on_darkgreen(center('CALENDER', half_width - 1))), end='')
         
