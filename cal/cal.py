@@ -74,7 +74,7 @@ class cal(Thread):
                             end_date = event['end']
 
                             current_date = event['start']
-                            while current_date <= end_date:
+                            while current_date < end_date:
 
                                 if current_date >= midnight(now).date():
                                     day_event = deepcopy(event)
