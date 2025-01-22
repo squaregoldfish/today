@@ -9,6 +9,9 @@ from datetime import datetime
 import json
 from tzlocal import get_localzone
 
+def midnight(date_object):
+    return date_object.replace(hour=0, minute=0, second=0, microsecond=0)
+
 def center(text, width):
     if len(text) > width:
         return text[:width]
@@ -57,40 +60,51 @@ def display_tasks(tasks, x_pos, y_start, y_limit, max_length, include_date):
 def display_calendar(events, x_pos, y_start, y_limit, max_length):
     pos = y_start
 
+
     if len(events) == 0:
         print(term.move_xy(x_pos, pos) + 'No events')
     else:
+        current_date = None
+
         for event in events:
-            if event['end'] is None:
-                time_string = event['start']
+            # If we've changed date, print a new date.
+            new_date = False
+            if isinstance(event['start'], datetime):
+                start_date = midnight(event['start']).date()
+                if current_date is None or start_date != current_date:
+                    current_date = start_date
+                    new_date = True
             else:
-                time_string = f'{event["start"]} - {event["end"]}'
+                if current_date is None or event['start'] != current_date:
+                    current_date = event['start']
+                    new_date = True
+
+
+            if new_date:
+                date_string = current_date.strftime('%a %e')
+                print(term.move_xy(x_pos, pos) + term.bold(date_string[:max_length].ljust(max_length)))
+                pos += 1
 
             color = getattr(term, event['color'])
-
-            name_string = f'  {event["name"]}'
-
             if event['time_to_start'] is None:
-                print(term.move_xy(x_pos, pos) + color(time_string[:max_length].ljust(max_length)))
-                print(term.move_xy(x_pos, pos + 1) + color(name_string[:max_length].ljust(max_length)))
+                print(term.move_xy(x_pos, pos) + color(f'        {event["name"]}'[:max_length].ljust(max_length)))            
             else:
+                print(term.move_xy(x_pos, pos) + '  ')
+
+                event_text = f'{event["start"].strftime("%H:%M")} {event["name"]}'
+
                 seconds_to_start = event['time_to_start'].total_seconds()
 
                 if seconds_to_start <= 0:
-                    print(term.move_xy(x_pos, pos) + term.bold(term.on_firebrick3(time_string[:max_length].ljust(max_length))))
-                    print(term.move_xy(x_pos, pos + 1) + term.bold(term.on_firebrick3(name_string[:max_length].ljust(max_length))))
+                    print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_firebrick3(event_text[:max_length].ljust(max_length))))
                 elif seconds_to_start <= 300:
-                    print(term.move_xy(x_pos, pos) + term.bold(term.on_darkorange3(time_string[:max_length].ljust(max_length))))
-                    print(term.move_xy(x_pos, pos + 1) + term.bold(term.on_darkorange3(name_string[:max_length].ljust(max_length))))
+                    print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_darkorange3(event_text[:max_length].ljust(max_length))))
                 elif seconds_to_start <= 900:
-                    print(term.move_xy(x_pos, pos) + term.bold(term.on_gold4(time_string[:max_length].ljust(max_length))))
-                    print(term.move_xy(x_pos, pos + 1) + term.bold(term.on_gold4(name_string[:max_length].ljust(max_length))))
+                    print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_gold4(event_text[:max_length].ljust(max_length))))
                 else:
-                    print(term.move_xy(x_pos, pos) + color(time_string[:max_length].ljust(max_length)))
-                    print(term.move_xy(x_pos, pos + 1) + color(name_string[:max_length].ljust(max_length)))
+                    print(term.move_xy(x_pos + 2, pos) + color(event_text[:max_length].ljust(max_length)))
 
-
-            pos += 2
+            pos += 1
 
             if pos + 4 > y_limit:
                 break
@@ -164,7 +178,7 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         list_tasks = sorted(list_tasks, key=itemgetter('due', 'name'))
         display_tasks(list_tasks, half_width + 1, 1, half_height - 1, half_width - 1, True)
         
-        display_calendar(cal_instance.get_event_text(), half_width + 1, half_height + 2, term.height, half_width - 1)
+        display_calendar(cal_instance.get_events(), half_width + 1, half_height + 2, term.height, half_width - 1)
 
         print(term.move_xy(term.width, term.height), end='')
         key = term.inkey(timeout=1)

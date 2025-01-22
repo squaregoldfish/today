@@ -7,6 +7,7 @@ from tzlocal import get_localzone
 from dateutil import relativedelta
 import time
 import requests
+from copy import deepcopy
 
 def _get_calendar(source):
     if source.startswith('http'):
@@ -69,7 +70,20 @@ class cal(Thread):
                         if isinstance(event['start'], datetime.datetime):
                             time_events.append(event)
                         else:
-                            day_events.append(event)
+                            start_date = event['start']
+                            end_date = event['end']
+
+                            current_date = event['start']
+                            while current_date <= end_date:
+
+                                if current_date >= midnight(now).date():
+                                    day_event = deepcopy(event)
+                                    day_event['start'] = current_date
+                                    day_event['end'] = current_date
+
+                                    day_events.append(day_event)
+
+                                current_date = current_date + relativedelta.relativedelta(days=1)
 
             self.day_events = sorted(day_events, key=lambda x: x['start'])
             self.time_events = sorted(time_events, key=lambda x: x['start'])
@@ -79,11 +93,8 @@ class cal(Thread):
                 time.sleep(1)
                 sleep_time += 1
 
-
-
-    def get_event_text(self):
-
-        event_text = []
+    def get_events(self):
+        result = []
 
         current_date = midnight(datetime.datetime.now(get_localzone())).date()
         day_event_index = 0
@@ -93,8 +104,8 @@ class cal(Thread):
             while day_event_index < len(self.day_events) and self.day_events[day_event_index]['start'] <= current_date:
                 evt = self.day_events[day_event_index]
 
-                ev_text = {
-                    'start': datetime.datetime.strftime(evt['start'], '%a %-d %b'),
+                event_object = {
+                    'start': evt['start'],
                     'name': evt['name'],
                     'color': evt['color'],
                     'time_to_start': None
@@ -102,32 +113,32 @@ class cal(Thread):
 
                 true_end = evt['end'] - relativedelta.relativedelta(days = 1)
                 if true_end == evt['start']:
-                    ev_text['end'] = None
+                    event_object['end'] = None
                 else:
-                    ev_text['end'] = datetime.datetime.strftime(true_end, '%a %-d %b')
+                    event_object['end'] = true_end
 
-                event_text.append(ev_text)
+                result.append(event_object)
 
                 day_event_index += 1
 
             while time_event_index < len(self.time_events) and midnight(self.time_events[time_event_index]['start']).date() <= current_date:
                 evt = self.time_events[time_event_index]
 
-                ev_text = {
-                    'start': datetime.datetime.strftime(evt['start'].astimezone(get_localzone()), '%a %-d %b %-H:%M'),
-                    'end': datetime.datetime.strftime(evt['end'].astimezone(get_localzone()), '%-H:%M'),
+                event_object = {
+                    'start': evt['start'].astimezone(get_localzone()),
+                    'end': evt['end'].astimezone(get_localzone()),
                     'name': evt['name'],
                     'color': evt['color'],
                     'time_to_start': evt['start'].astimezone(get_localzone()) - datetime.datetime.now(get_localzone())
                 }
 
-                event_text.append(ev_text)
+                result.append(event_object)
 
                 time_event_index += 1
 
             current_date = current_date + relativedelta.relativedelta(days=1)
 
-        return(event_text)
+        return result
 
     def stop(self):
         self.stop_flag = True
@@ -142,6 +153,6 @@ if __name__ == "__main__":
     instance = cal(config['calendar'])
 
     while True:
-        print(instance.get_event_text())
+        print(instance.get_result())
         time.sleep(5)
 
