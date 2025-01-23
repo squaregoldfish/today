@@ -96,13 +96,13 @@ def display_calendar(events, x_pos, y_start, y_limit, max_length):
                 seconds_to_start = event['time_to_start'].total_seconds()
 
                 if seconds_to_start <= 0:
-                    print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_firebrick3(event_text[:max_length].ljust(max_length))))
+                    print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_firebrick3(event_text[:max_length].ljust(max_length - 2))))
                 elif seconds_to_start <= 300:
-                    print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_darkorange3(event_text[:max_length].ljust(max_length))))
+                    print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_darkorange3(event_text[:max_length].ljust(max_length - 2))))
                 elif seconds_to_start <= 900:
-                    print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_gold4(event_text[:max_length].ljust(max_length))))
+                    print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_gold4(event_text[:max_length].ljust(max_length - 2))))
                 else:
-                    print(term.move_xy(x_pos + 2, pos) + color(event_text[:max_length].ljust(max_length)))
+                    print(term.move_xy(x_pos + 2, pos) + color(event_text[:max_length].ljust(max_length - 2)))
 
             pos += 1
 
