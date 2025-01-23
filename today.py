@@ -114,7 +114,7 @@ def display_calendar(events, x_pos, y_start, y_limit, max_length):
 
                 pos += 1
 
-                if pos + 4 > y_limit:
+                if pos + 3 > y_limit:
                     break
 
         while pos < y_limit - 1:
