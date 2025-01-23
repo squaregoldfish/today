@@ -67,47 +67,59 @@ def display_calendar(events, x_pos, y_start, y_limit, max_length):
         current_date = None
 
         for event in events:
-            # If we've changed date, print a new date.
-            new_date = False
+            process_event = True
+
+            # Don't show finished events
             if isinstance(event['start'], datetime):
-                start_date = midnight(event['start']).date()
-                if current_date is None or start_date != current_date:
-                    current_date = start_date
-                    new_date = True
-            else:
-                if current_date is None or event['start'] != current_date:
-                    current_date = event['start']
-                    new_date = True
+                if event['end'] < datetime.now(get_localzone()):
+                    process_event = False
+
+            if process_event:
+                # If we've changed date, print a new date.
+                new_date = False
+                if isinstance(event['start'], datetime):
+                    start_date = midnight(event['start']).date()
+                    if current_date is None or start_date != current_date:
+                        current_date = start_date
+                        new_date = True
+                else:
+                    if current_date is None or event['start'] != current_date:
+                        current_date = event['start']
+                        new_date = True
 
 
-            if new_date:
-                date_string = current_date.strftime('%a %e')
-                print(term.move_xy(x_pos, pos) + term.bold(date_string[:max_length].ljust(max_length)))
+                if new_date:
+                    date_string = current_date.strftime('%a %e')
+                    print(term.move_xy(x_pos, pos) + term.bold(date_string[:max_length].ljust(max_length)))
+                    pos += 1
+
+                color = getattr(term, event['color'])
+                if event['time_to_start'] is None:
+                    print(term.move_xy(x_pos, pos) + color(f'        {event["name"]}'[:max_length].ljust(max_length)))            
+                else:
+                    print(term.move_xy(x_pos, pos) + '  ')
+
+                    event_text = f'{event["start"].strftime("%H:%M")} {event["name"]}'
+
+                    seconds_to_start = event['time_to_start'].total_seconds()
+
+                    if seconds_to_start <= 0:
+                        print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_firebrick3(event_text[:max_length].ljust(max_length - 2))))
+                    elif seconds_to_start <= 300:
+                        print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_darkorange3(event_text[:max_length].ljust(max_length - 2))))
+                    elif seconds_to_start <= 900:
+                        print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_gold4(event_text[:max_length].ljust(max_length - 2))))
+                    else:
+                        print(term.move_xy(x_pos + 2, pos) + color(event_text[:max_length].ljust(max_length - 2)))
+
                 pos += 1
 
-            color = getattr(term, event['color'])
-            if event['time_to_start'] is None:
-                print(term.move_xy(x_pos, pos) + color(f'        {event["name"]}'[:max_length].ljust(max_length)))            
-            else:
-                print(term.move_xy(x_pos, pos) + '  ')
+                if pos + 4 > y_limit:
+                    break
 
-                event_text = f'{event["start"].strftime("%H:%M")} {event["name"]}'
-
-                seconds_to_start = event['time_to_start'].total_seconds()
-
-                if seconds_to_start <= 0:
-                    print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_firebrick3(event_text[:max_length].ljust(max_length - 2))))
-                elif seconds_to_start <= 300:
-                    print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_darkorange3(event_text[:max_length].ljust(max_length - 2))))
-                elif seconds_to_start <= 900:
-                    print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_gold4(event_text[:max_length].ljust(max_length - 2))))
-                else:
-                    print(term.move_xy(x_pos + 2, pos) + color(event_text[:max_length].ljust(max_length - 2)))
-
+        while pos < y_limit - 1:
+            print(term.move_xy(x_pos, pos) + ' ' * max_length)
             pos += 1
-
-            if pos + 4 > y_limit:
-                break
 
 with open('config.toml') as config_file:
     config = toml.load(config_file)
