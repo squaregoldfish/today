@@ -47,7 +47,7 @@ class cal(Thread):
             day_events = []
 
             now = datetime.datetime.now(get_localzone())
-            one_month = now + relativedelta.relativedelta(months=12)
+            cal_period = now + relativedelta.relativedelta(days=7)
 
             for name in self.calendars.keys():
                 if self.stop_flag:
@@ -58,7 +58,7 @@ class cal(Thread):
 
                 cal = _get_calendar(source)
                 if cal is not None:
-                    events = recurring_ical_events.of(cal).between(now, one_month)
+                    events = recurring_ical_events.of(cal).between(now, cal_period)
                     for ev in events:
                         event = {
                             'name': ev.get('summary'),
