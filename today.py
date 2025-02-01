@@ -123,8 +123,7 @@ def display_calendar(events, x_pos, y_start, y_limit, max_length):
 
 
 ## HERE WE GO
-logging.basicConfig(filename='main.log', level=logging.INFO)
-logging.info('START')
+logging.basicConfig(filename='today.log', level=logging.INFO)
 
 with open('config.toml') as config_file:
     config = toml.load(config_file)
@@ -158,8 +157,12 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         print(term.move_xy(0, 0) + term.bold(term.on_firebrick3(center(f'OVERDUE TASKS ({overdue_count}, {overdue_oldest}d)', half_width - 1))), end='')
         print(term.move_xy(0, half_height + 1) + term.bold(term.on_deepskyblue4(center(f'DUE TODAY ({today_count})', half_width - 1))), end='')
         print(term.move_xy(half_width + 1, 0) + term.bold(term.on_webpurple(center('/'.join(rtm_instance.get_required_lists()).upper(), half_width - 1))), end='')
-        print(term.move_xy(half_width + 1, half_height + 1) + term.bold(term.on_darkgreen(center('CALENDER', half_width - 1))), end='')
         
+        if cal_instance.has_error():
+            print(term.move_xy(half_width + 1, half_height + 1) + term.bold(term.on_salmon1(center('CALENDER', half_width - 1))), end='')
+        else:
+            print(term.move_xy(half_width + 1, half_height + 1) + term.bold(term.on_darkgreen(center('CALENDER', half_width - 1))), end='')
+
         all_tasks = rtm_instance.get_tasks(None)
 
         overdue_tasks = sorted(
