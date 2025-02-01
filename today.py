@@ -8,6 +8,7 @@ from operator import itemgetter
 from datetime import datetime
 import json
 from tzlocal import get_localzone
+import logging
 
 def midnight(date_object):
     return date_object.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -98,19 +99,18 @@ def display_calendar(events, x_pos, y_start, y_limit, max_length):
                     print(term.move_xy(x_pos, pos) + color(f'        {event["name"]}'[:max_length].ljust(max_length)))            
                 else:
                     print(term.move_xy(x_pos, pos) + '  ')
-
                     event_text = f'{event["start"].strftime("%H:%M")} {event["name"]}'
+                    to_print = event_text[:max_length - 2].ljust(max_length - 2)
 
                     seconds_to_start = event['time_to_start'].total_seconds()
-
                     if seconds_to_start <= 0:
-                        print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_firebrick3(event_text[:max_length].ljust(max_length - 3))))
+                        print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_firebrick3(to_print)))
                     elif seconds_to_start <= 300:
-                        print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_darkorange3(event_text[:max_length].ljust(max_length - 3))))
+                        print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_darkorange3(to_print)))
                     elif seconds_to_start <= 900:
-                        print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_gold4(event_text[:max_length].ljust(max_length - 3))))
+                        print(term.move_xy(x_pos + 2, pos) + term.bold(term.on_gold4(to_print)))
                     else:
-                        print(term.move_xy(x_pos + 2, pos) + color(event_text[:max_length].ljust(max_length - 3)))
+                        print(term.move_xy(x_pos + 2, pos) + color(to_print))
 
                 pos += 1
 
@@ -120,6 +120,11 @@ def display_calendar(events, x_pos, y_start, y_limit, max_length):
         while pos < y_limit - 1:
             print(term.move_xy(x_pos, pos) + ' ' * max_length)
             pos += 1
+
+
+## HERE WE GO
+logging.basicConfig(filename='main.log', level=logging.INFO)
+logging.info('START')
 
 with open('config.toml') as config_file:
     config = toml.load(config_file)
