@@ -123,7 +123,8 @@ def display_calendar(events, x_pos, y_start, y_limit, max_length):
 
 
 ## HERE WE GO
-logging.basicConfig(filename='today.log', level=logging.INFO)
+logging.basicConfig(filename='today.log', format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S', level=logging.INFO)
+logging.info('STARTUP')
 
 with open('config.toml') as config_file:
     config = toml.load(config_file)
@@ -155,8 +156,8 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
             print(term.clear)
 
         print(term.move_xy(0, 0) + term.bold(term.on_firebrick3(center(f'OVERDUE TASKS ({overdue_count}, {overdue_oldest}d)', half_width - 1))), end='')
-        print(term.move_xy(0, half_height + 1) + term.bold(term.on_deepskyblue4(center(f'DUE TODAY ({today_count})', half_width - 1))), end='')
-        print(term.move_xy(half_width + 1, 0) + term.bold(term.on_webpurple(center('/'.join(rtm_instance.get_required_lists()).upper(), half_width - 1))), end='')
+        print(term.move_xy(0, half_height + 1) + term.bold(term.on_webpurple(center('TRANSPORT', half_width - 1))), end='')
+        print(term.move_xy(half_width + 1, 0) + term.bold(term.on_deepskyblue4(center(f'DUE TODAY ({today_count})', half_width - 1))), end='')
         
         if cal_instance.has_error():
             print(term.move_xy(half_width + 1, half_height + 1) + term.bold(term.on_salmon1(center('CALENDER', half_width - 1))), end='')
@@ -188,15 +189,11 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
 
         today_count = len(today_tasks)
 
-        display_tasks(today_tasks, 0, half_height + 2, term.height, half_width - 1, False)
+        display_tasks(today_tasks, half_width + 1, 1, half_height - 1, half_width - 1, False)
 
         list_tasks = []
 
-        for list_name in rtm_instance.get_required_lists():
-            list_tasks += rtm_instance.get_tasks(list_name)
-
-        list_tasks = sorted(list_tasks, key=itemgetter('due', 'name'))
-        display_tasks(list_tasks, half_width + 1, 1, half_height - 1, half_width - 1, True)
+        # TRANSPORT HERE
         
         display_calendar(cal_instance.get_events(), half_width + 1, half_height + 2, term.height, half_width - 1)
 
