@@ -22,7 +22,7 @@ def center(text, width):
 def display_tasks(tasks, x_pos, y_start, y_limit, max_length, include_date):
     pos = y_start
     if len(tasks) == 0:
-        print(term.move_xy(x_pos, pos) + 'No tasks')
+        print(term.move_xy(x_pos, pos) + 'No tasks'[:max_length].ljust(max_length))
     else:
         for task in tasks:
             task_date = datetime.strptime(task['due'], "%Y-%m-%d")
