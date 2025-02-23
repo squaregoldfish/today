@@ -91,8 +91,9 @@ def display_calendar(events, x_pos, y_start, y_limit, max_length):
 
 
                 if new_date:
+                    color = getattr(term, 'white')
                     date_string = current_date.strftime('%a %e')
-                    print(term.move_xy(x_pos, pos) + term.bold(date_string[:max_length].ljust(max_length)))
+                    print(term.move_xy(x_pos, pos) + term.bold(color(date_string[:max_length].ljust(max_length))))
                     pos += 1
 
                 color = getattr(term, event['color'])
