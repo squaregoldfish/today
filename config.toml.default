@@ -8,3 +8,8 @@ required_lists = ['Work']
     [calendar.myCalendar]
     calendar = 'https://example.org/calendar.ics'
     color = 'blue'
+
+[gtfs]
+database = 'gtfs.db'
+departure_stops = [1]
+arrival_stops = [2]

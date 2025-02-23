@@ -172,3 +172,4 @@ cython_debug/
 
 config.toml
 **/*.ics
+*sqlite

@@ -2,6 +2,7 @@ import argparse
 from blessed import Terminal
 from rtm import rtm
 from cal import cal
+from gtfs import gtfs
 import toml
 import time
 from operator import itemgetter
@@ -121,6 +122,23 @@ def display_calendar(events, x_pos, y_start, y_limit, max_length):
             print(term.move_xy(x_pos, pos) + ' ' * max_length)
             pos += 1
 
+def make_color(hex):
+    return tuple(int(hex[i:i+2], 16) for i in (0, 2, 4))
+
+def display_gtfs(journeys, x_pos, y_start, y_limit, max_length):
+    if len(journeys) == 0:
+        print(term.move_xy(x_pos, y_start) + 'No journeys'[:max_length].ljust(max_length))
+    else:
+        pos = y_start
+
+        for journey in journeys:
+            color = term.color_rgb(*make_color(journey[0]))
+            print(term.move_xy(x_pos, pos) + color + f'{journey[3]} {journey[2]} {journey[4]}'[:max_length].ljust(max_length))
+
+            pos += 1
+            if pos + 2 > y_limit:
+                break
+
 
 ## HERE WE GO
 logging.basicConfig(filename='today.log', format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S', level=logging.INFO)
@@ -131,6 +149,7 @@ with open('config.toml') as config_file:
 
 rtm_instance = rtm.rtm(config['rtm'])
 cal_instance = cal.cal(config['calendar'])
+gtfs_instance = gtfs.gtfs(config['gtfs'])
 
 term = Terminal()
 
@@ -193,7 +212,8 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
 
         list_tasks = []
 
-        # TRANSPORT HERE
+        
+        display_gtfs(gtfs_instance.get_journeys(), 0, half_height + 2, term.height, half_width - 1)
         
         display_calendar(cal_instance.get_events(), half_width + 1, half_height + 2, term.height, half_width - 1)
 
@@ -204,3 +224,4 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
 
 rtm_instance.stop()
 cal_instance.stop()
+gtfs_instance.stop()
