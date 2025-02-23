@@ -89,7 +89,7 @@ class gtfs(Thread):
             timediff_str = f'{hours}h{minutes_diff - (hours * 60):02d}m'
         else:
             timediff_str = f'{str(minutes_diff)}m'
-        return [row.color, minutes_diff, f'{row.timestamp.strftime("%H:%M")}', timediff_str.rjust(6), f'{row.route} {row.stop_name} - {row.destination}']
+        return [row.color, minutes_diff, f'{row.timestamp.strftime("%H:%M")}', timediff_str.rjust(6), f'{row.route.rjust(2)} {row.stop_name} - {row.destination}']
 
     def _make_journeys(self):
         journey_info = self.trips[self.trips['timestamp'] > datetime.now()]
