@@ -71,7 +71,7 @@ class gtfs(Thread):
             'INNER JOIN routes r ON t.route_id = r.route_id '
             'INNER JOIN calendar_dates c ON c.service_id = t.service_id '
             f'WHERE st1.stop_id IN ({make_in_params(len(self.departure_stops))}) AND st2.stop_id IN ({make_in_params(len(self.arrival_stops))}) '
-            'AND st2.stop_sequence > st1.stop_sequence '
+            'AND CAST(st2.stop_sequence AS INTEGER) > CAST(st1.stop_sequence AS INTEGER) '
             'AND c.exception_type = 1 '
             f'AND c.date IN ({make_in_params(len(dates))}) '
             'ORDER BY c.date, st1.departure_time'
