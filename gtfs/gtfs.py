@@ -27,6 +27,7 @@ class gtfs(Thread):
         self.db_file = config['database']
         self.departure_stops = config['departure_stops']
         self.arrival_stops = config['arrival_stops']
+        self.replacements = config['replacements']
         
         self.trips = None
         self.trips_time = None
@@ -79,6 +80,10 @@ class gtfs(Thread):
 
             self.trips = pd.read_sql_query(trip_query, con, params=self.departure_stops + self.arrival_stops + dates)
             self.trips['timestamp'] = self.trips.apply(lambda row: make_timestamp(row.date, row.departure_time), axis=1)
+
+            for replacement in self.replacements:
+                self.trips.replace(replacement[0], replacement[1], inplace=True)
+
             self.trips_time = datetime.now()
 
     def format_row(self, row):

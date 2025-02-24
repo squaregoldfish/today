@@ -13,3 +13,6 @@ required_lists = ['Work']
 database = 'gtfs.db'
 departure_stops = [1]
 arrival_stops = [2]
+replacements = [
+  ['SEARCH', 'REPLACE']
+]
