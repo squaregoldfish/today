@@ -89,7 +89,7 @@ class gtfs(Thread):
     def format_row(self, row):
         timediff = row.timestamp - datetime.now()
         minutes_diff = int(timediff.total_seconds() / 60)
-        if minutes_diff > 60:
+        if minutes_diff > 59:
             hours = int(minutes_diff / 60)
             timediff_str = f'{hours}h{minutes_diff - (hours * 60):02d}m'
         else:
