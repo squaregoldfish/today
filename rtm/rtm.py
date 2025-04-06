@@ -3,6 +3,7 @@ from hashlib import md5
 import copy
 import requests
 import json
+from dateutil import parser
 from datetime import datetime, timedelta
 import time
 from threading import Thread
@@ -114,8 +115,7 @@ class rtm(Thread):
                     task_name = task['name']
 
                     for task_entry in task['task']:
-                        # For some reason all due dates are 1 day behind
-                        entry_date = datetime.fromisoformat(task_entry['due'])
+                        entry_date = parser.parse(task_entry['due'])
                         local_date = midnight(entry_date.astimezone(get_localzone())).date()
 
                         if local_date < today:
