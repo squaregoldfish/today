@@ -1,0 +1,8 @@
+[gtfs]
+database = 'gtfs.sqlite'
+departure_stops = []
+arrival_stops = []
+replacements = [
+  ['GTFS Name', 'My Name']
+]
+default_color='FFFFFF'

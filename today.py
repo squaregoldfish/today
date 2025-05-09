@@ -1,4 +1,3 @@
-import argparse
 from blessed import Terminal
 from rtm import rtm
 from cal import cal
@@ -10,6 +9,8 @@ from datetime import datetime
 import json
 from tzlocal import get_localzone
 import logging
+import sys
+import os
 
 def midnight(date_object):
     return date_object.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -134,7 +135,7 @@ def display_gtfs(journeys, x_pos, y_start, y_limit, max_length):
 
         for journey in journeys:
             color = term.color_rgb(*make_color(journey[0]))
-            print(term.move_xy(x_pos, pos) + color + f'{journey[3]} {journey[2]} {journey[4]}'[:max_length].ljust(max_length))
+            print(term.move_xy(x_pos, pos) + color + f'{journey[3]}  {journey[2]} {journey[4]}'[:max_length].ljust(max_length))
 
             pos += 1
             if pos + 2 > y_limit:
@@ -148,9 +149,20 @@ logging.info('STARTUP')
 with open('config.toml') as config_file:
     config = toml.load(config_file)
 
+# Work out what GTFS files we've been asked for
+if len(sys.argv) == 1:
+    gtfs_files = config['gtfs']['files']
+else:
+    gtfs_files = sys.argv[1:]
+
+# Check that all the files exist
+for gtfs_file in gtfs_files:
+    if not os.path.exists(gtfs_file):
+        raise FileNotFoundError(f'{gtfs_file} does not exist')
+
 rtm_instance = rtm.rtm(config['rtm'])
 cal_instance = cal.cal(config['calendar'])
-gtfs_instance = gtfs.gtfs(config['gtfs'])
+gtfs_instance = gtfs.gtfs(gtfs_files)
 
 term = Terminal()
 
