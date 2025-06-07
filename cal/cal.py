@@ -60,7 +60,6 @@ class cal(Thread):
                     else:
                         self.calendar_data[name]['error'] = not cal_valid
 
-
             sleep_time = 0
             while not self.stop_flag and sleep_time < 600:
                 time.sleep(1)
@@ -149,6 +148,9 @@ class cal(Thread):
                 time_event_index += 1
 
             current_date = current_date + relativedelta.relativedelta(days=1)
+            if (current_date - now.date()).days > 7:
+                break
+
 
         return result
 
