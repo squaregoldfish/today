@@ -213,7 +213,6 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
 
         display_tasks(overdue_tasks, 0, 1, half_height - 1, half_width - 1, True)
 
-
         today_tasks = sorted(
             list([d for d in all_tasks if d['status'] == rtm.TODAY]),
             key=itemgetter('name')
@@ -224,7 +223,6 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         display_tasks(today_tasks, half_width + 1, 1, half_height - 1, half_width - 1, False)
 
         list_tasks = []
-
         
         display_gtfs(gtfs_instance.get_journeys(), 0, half_height + 2, term.height, half_width - 1)
         
