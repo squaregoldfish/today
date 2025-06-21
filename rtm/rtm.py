@@ -2,6 +2,8 @@ import toml
 from hashlib import md5
 import copy
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import json
 from dateutil import parser
 from datetime import datetime, timedelta
@@ -9,6 +11,7 @@ import time
 from threading import Thread
 import pytz
 from tzlocal import get_localzone
+import logging
 
 RTM_URL = 'https://api.rememberthemilk.com/services/rest/?'
 RATE_LIMIT = 1
@@ -53,7 +56,6 @@ class rtm(Thread):
                 sleep_time += 1
 
     def _request(self, method, params):
-
         if self.last_request is not None and (datetime.now() - self.last_request).seconds < RATE_LIMIT:
             time.sleep(RATE_LIMIT_BACKOFF)
 
@@ -72,7 +74,14 @@ class rtm(Thread):
             sig += f'{key}{value}'
 
         request_string += f'api_sig={md5(sig.encode("utf-8")).hexdigest()}'
-        response = requests.get(request_string)
+        
+        session = requests.Session()
+        retry = Retry(connect=5, backoff_factor=0.5)
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
+
+        response = session.get(request_string)
 
         self.last_request = datetime.now()
         return response.json()
@@ -136,8 +145,8 @@ class rtm(Thread):
                 self.tasks[ALL_TASKS] = store_tasks
             else:
                 self.tasks[list_id] = store_tasks
-        except Exception:
-            pass
+        except Exception as e:
+            logging.error(e)
 
     def get_tasks(self, list_name):
         list_id = ALL_TASKS if list_name is None else self._get_list_id(list_name)
