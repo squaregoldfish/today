@@ -10,6 +10,7 @@ blessed = "*"
 tzlocal = "*"
 pytz = "*"
 recurring-ical-events = "*"
+pandas = "*"
 
 [dev-packages]
 
