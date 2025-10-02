@@ -107,7 +107,7 @@ class rtm(Thread):
                 list_id = self._get_list_id(list_name)
 
             params = dict()
-            params['filter'] = 'status:incomplete AND dueBefore:"1 month of today"'
+            params['filter'] = 'status:incomplete AND dueBefore:"3 days of today"'
 
             if list_id is not None:
                 params['list_id'] = list_id

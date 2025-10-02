@@ -189,7 +189,7 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
 
         print(term.move_xy(0, 0) + term.bold(term.on_firebrick3(center(f'OVERDUE TASKS ({overdue_count}, {overdue_oldest}d)', half_width - 1))), end='')
         print(term.move_xy(0, half_height + 1) + term.bold(term.on_webpurple(center('TRANSPORT', half_width - 1))), end='')
-        print(term.move_xy(half_width + 1, 0) + term.bold(term.on_deepskyblue4(center(f'DUE TODAY ({today_count})', half_width - 1))), end='')
+        print(term.move_xy(half_width + 1, 0) + term.bold(term.on_deepskyblue4(center(f'TODAY & UPCOMING ({today_count})', half_width - 1))), end='')
         
         if cal_instance.has_error():
             print(term.move_xy(half_width + 1, half_height + 1) + term.bold(term.on_salmon1(center('CALENDER', half_width - 1))), end='')
@@ -214,9 +214,10 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         display_tasks(overdue_tasks, 0, 1, half_height - 1, half_width - 1, True)
 
         today_tasks = sorted(
-            list([d for d in all_tasks if d['status'] == rtm.TODAY]),
-            key=itemgetter('name')
+            list([d for d in all_tasks if d['status'] == rtm.TODAY or d['status'] == rtm.FUTURE]),
+            key=itemgetter('due', 'name')
             )
+
 
         today_count = len(today_tasks)
 
