@@ -178,6 +178,7 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
     overdue_count = 0
     overdue_oldest = 0
     today_count = 0
+    future_count = 0
 
     while True:
         if term.width != old_term_width or term.height != old_term_height:
@@ -189,7 +190,7 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
 
         print(term.move_xy(0, 0) + term.bold(term.on_firebrick3(center(f'OVERDUE TASKS ({overdue_count}, {overdue_oldest}d)', half_width - 1))), end='')
         print(term.move_xy(0, half_height + 1) + term.bold(term.on_webpurple(center('TRANSPORT', half_width - 1))), end='')
-        print(term.move_xy(half_width + 1, 0) + term.bold(term.on_deepskyblue4(center(f'TODAY & UPCOMING ({today_count})', half_width - 1))), end='')
+        print(term.move_xy(half_width + 1, 0) + term.bold(term.on_deepskyblue4(center(f'TODAY ({today_count}) & UPCOMING ({future_count})', half_width - 1))), end='')
         
         if cal_instance.has_error():
             print(term.move_xy(half_width + 1, half_height + 1) + term.bold(term.on_salmon1(center('CALENDER', half_width - 1))), end='')
@@ -219,7 +220,8 @@ with term.fullscreen(), term.cbreak(), term.hidden_cursor():
             )
 
 
-        today_count = len(today_tasks)
+        today_count = len([d for d in all_tasks if d['status'] == rtm.TODAY])
+        future_count = len([d for d in all_tasks if d['status'] == rtm.FUTURE])
 
         display_tasks(today_tasks, half_width + 1, 1, half_height - 1, half_width - 1, False)
 
